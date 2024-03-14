@@ -16,6 +16,48 @@
 abstract type Manifold
 end
 
+"""Spherical manifold {|MPS| = 1}."""
+struct MPS_Sphere <: Manifold
+    lid::Integer
+    rid::Integer
+    ptrace::ITensor
+    BT_indices
+end
+
+function MPS_Sphere(lid::Integer, rid::Integer, mps::MPS, BT_indices) 
+    cmps = dag.(mps)
+    prime!(cmps;tags="Link") # prime all the links so we dont accidentally fully contract the mps
+    pt::Vector{ITensor} = [it for it in mps .* cmps]
+    leftside = Folds.reduce(*,pt[1:(lid-1)] ; init=1)
+    rightside = Folds.reduce(*,pt[(rid+1):end]; init=1)
+
+    ptrace = leftside * rightside 
+
+    MPS_Sphere(lid, rid, ptrace, BT_indices)
+end
+
+function retract!(S::MPS_Sphere,B_flat) 
+    B = reconstruct_bond_tensor(B_flat, S.BT_indices)
+    Bdag = prime(dag(B); tags="Link")
+    B /= B * (Bdag * S.ptrace)
+    B_flat, _ = flatten_bond_tensor(B)
+    return B_flat
+end
+
+
+
+function project_tangent!(S::MPS_Sphere, g_flat, B_flat) 
+    B = reconstruct_bond_tensor(B_flat, S.BT_indices)
+    g = reconstruct_bond_tensor(g_flat, S.BT_indices)
+    Bdag = prime(dag(B); tags="Link")
+    g -= (g*Bdag) * (S.ptrace*B) 
+
+    g_flat, _ = flatten_bond_tensor(g)
+    return g
+end
+
+
+
 # fallback for out-of-place ops
 project_tangent(M::Manifold,x) = project_tangent!(M, similar(x), x)
 retract(M::Manifold,x) = retract!(M, copy(x))
