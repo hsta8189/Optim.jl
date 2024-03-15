@@ -120,6 +120,8 @@ export optimize, maximize, # main function
        Manifold,
        Flat,
        Sphere,
+       MPS_Sphere,
+       B_Sphere,
        Stiefel,
 
        ## Non-linear constraints
