@@ -70,6 +70,13 @@ retract!(S::Sphere, x) = (x ./= norm(x))
 # dot accepts any iterables
 project_tangent!(S::Sphere,g,x) = (g .-= real(dot(x,g)).*x)
 
+"""Spherical manifold {|x| = 1}."""
+struct Sphere2 <: Manifold
+end
+retract!(S::Sphere2, x) = (x ./= norm(x))
+# dot accepts any iterables
+project_tangent!(S::Sphere2,g,x) = (g .-= dot(x,g).*x)
+
 using ITensors
 """Spherical manifold {|MPS| = 1}."""
 struct MPS_Sphere <: Manifold
@@ -111,8 +118,6 @@ function project_tangent!(S::MPS_Sphere, g_flat, B_flat)
     return g
 end
 
-# for now
-B_Sphere(args...; kwargs...) = MPS_Sphere(args...;kwargs...)
 
 function flatten_bond_tensor(B::ITensor)
     """Function to flatten an ITensor so that it can be fed into Optim
