@@ -90,8 +90,8 @@ function MPS_Sphere(lid::Integer, rid::Integer, mps::MPS, BT_indices)
     cmps = dag.(mps)
     prime!(cmps;tags="Link") # prime all the links so we dont accidentally fully contract the mps
     pt::Vector{ITensor} = [it for it in mps .* cmps]
-    leftside = Folds.reduce(*,pt[1:(lid-1)] ; init=1)
-    rightside = Folds.reduce(*,pt[(rid+1):end]; init=1)
+    leftside = reduce(*,pt[1:(lid-1)] ; init=1)
+    rightside = reduce(*,pt[(rid+1):end]; init=1)
 
     ptrace = leftside * rightside 
 
