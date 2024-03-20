@@ -77,7 +77,6 @@ retract!(S::Sphere2, x) = (x ./= norm(x))
 # dot accepts any iterables
 project_tangent!(S::Sphere2,g,x) = (g .-= dot(x,g).*x)
 
-using ITensors
 """Spherical manifold {|MPS| = 1}."""
 struct MPS_Sphere <: Manifold
     lid::Integer
